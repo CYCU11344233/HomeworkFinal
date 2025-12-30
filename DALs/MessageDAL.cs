@@ -3,12 +3,8 @@ using System.Data.OleDb;
 
 namespace HomeworkFinal.DALs
 {
-    public class MessageDAL
+    public class MessageDAL : BaseDAL
     {
-
-        private readonly string _connStr = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\user\source\repos\CYCU11344233\HomeworkFinal\MyAccessDB.mdb";
-        // 我筆電的ver
-        //private readonly string _connStr = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\hongw\source\repos\CYCU11344233\HomeworkFinal\MyAccessDB.mdb";
         public bool ReleaseMessage(Message msg)
         {
             using (OleDbConnection conn = new OleDbConnection(_connStr))

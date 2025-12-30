@@ -2,19 +2,14 @@
 
 namespace HomeworkFinal.DALs
 {
-    public class UserDAL
+    public class UserDAL : BaseDAL
     {
-
-        private readonly string _connStr = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\user\source\repos\CYCU11344233\HomeworkFinal\MyAccessDB.mdb";
-        // 我筆電的ver
-        //private readonly string _connStr = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\hongw\source\repos\CYCU11344233\HomeworkFinal\MyAccessDB.mdb";
         public Boolean Authorize(string uid, string password)
         {
             Boolean result = false;
             using (OleDbConnection conn = new OleDbConnection(_connStr))
             {
                 conn.Open();
-                //string SqlStr = "select * from [Users] where [Name]=@uid and [Password]=@password";
                 string SqlStr = "select * from [Users] where [Name]=? and [Password]=?";
                 OleDbCommand cmd = new OleDbCommand(SqlStr, conn);
                 cmd.Parameters.Add(new OleDbParameter("Name", uid));
@@ -30,7 +25,7 @@ namespace HomeworkFinal.DALs
             return result;
         }
 
-        public bool Register(string uid, string password)
+        public bool Register(string uid, string password, string gmail)
         {
             using (OleDbConnection conn = new OleDbConnection(_connStr))
             {
@@ -40,21 +35,25 @@ namespace HomeworkFinal.DALs
                 string checkSql = "SELECT COUNT(*) FROM [Users] WHERE [Name]=?";
                 using (OleDbCommand checkCmd = new OleDbCommand(checkSql, conn))
                 {
-                    checkCmd.Parameters.Add(new OleDbParameter("Name", uid));
-                    int count = (int)checkCmd.ExecuteScalar();
+                    checkCmd.Parameters.Add(new OleDbParameter("@Name", OleDbType.VarChar)).Value = uid;
 
-                    if (count > 0) return false; // 帳號重複，註冊失敗
+                    // 使用 Convert.ToInt32 避免直接強轉失敗
+                    int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+
+                    if (count > 0) return false;
                 }
 
-                // 2. 帳號沒人用，執行新增
-                string insertSql = "INSERT INTO [Users] ([Name], [Password]) VALUES (?, ?)";
+                // 2. 執行新增
+                string insertSql = "INSERT INTO [Users] ([Name], [Password], [Gmail]) VALUES (?, ?, ?)";
                 using (OleDbCommand insertCmd = new OleDbCommand(insertSql, conn))
                 {
-                    insertCmd.Parameters.Add(new OleDbParameter("Name", uid));
-                    insertCmd.Parameters.Add(new OleDbParameter("Password", password));
+                    // 嚴謹一點可以指定資料型別
+                    insertCmd.Parameters.Add(new OleDbParameter("@Name", OleDbType.VarChar)).Value = uid;
+                    insertCmd.Parameters.Add(new OleDbParameter("@Password", OleDbType.VarChar)).Value = password;
+                    insertCmd.Parameters.Add(new OleDbParameter("@Gmail", OleDbType.VarChar)).Value = gmail;
 
                     int affectedRows = insertCmd.ExecuteNonQuery();
-                    return affectedRows > 0; // 回傳是否成功寫入
+                    return affectedRows > 0;
                 }
             }
         }

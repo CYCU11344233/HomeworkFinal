@@ -48,7 +48,7 @@ namespace HomeworkFinal.Controllers
             HomeworkFinal.DALs.UserDAL obj = new HomeworkFinal.DALs.UserDAL();
 
             // 呼叫剛剛寫好的 Register 方法
-            bool isSuccess = obj.Register(request.Name, request.Password);
+            bool isSuccess = obj.Register(request.Name, request.Password, request.Gmail);
 
             if (isSuccess)
             {
